@@ -14,7 +14,7 @@ import java.util.Properties;
 @Component
 public class EmailServices {
 
-    @Bean
+ /*   @Bean
     public JavaMailSender getJavaMailSender() {
         JavaMailSenderImpl mailSender = new JavaMailSenderImpl();
         mailSender.setHost("smtp.gmail.com");
@@ -49,5 +49,5 @@ public class EmailServices {
     public void sendEmail(){
         System.out.println("Testing");
         sendSimpleMessage("vinayv@discovery.co.za","Testing","test");
-    }
+    }*/
 }

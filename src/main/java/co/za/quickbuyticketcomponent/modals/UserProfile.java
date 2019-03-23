@@ -11,44 +11,22 @@ import java.util.Set;
  * Created by gVadlamuri on 12/28/2017.
  */
 @Entity
-@Table(name="user_profile"
+@Table(name="UserProfile"
         , uniqueConstraints = {@UniqueConstraint(columnNames="Email")}
 )
 public class UserProfile  implements java.io.Serializable {
 
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "userid")
     private int userId;
-
-    @Column(name = "firstname")
     private String firstName;
-
-    @Column(name = "lastname")
     private String lastName;
-
-    @Column(name = "email")
     private String email;
-
-    @Column(name = "password")
     private String password;
-
-    @Column(name = "mobile")
     private String mobile;
-
     private AccountType accountType;
-
-    @Column(name = "created_date")
     private Date createdAt;
-
-    @Column(name = "modified_at")
     private Date modifiedAt;
-
-    @Column(name = "is_active")
     private String isActive;
-
-    @Column(name = "is_deleted")
     private int isDeleted;
 
 
@@ -58,8 +36,10 @@ public class UserProfile  implements java.io.Serializable {
 
 
 
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
 
-
+    @Column(name = "UserID", unique = true, nullable = false)
     public int getUserId() {
         return this.userId;
     }
@@ -69,6 +49,7 @@ public class UserProfile  implements java.io.Serializable {
     }
 
 
+    @Column(name = "FirstName", nullable = false, length = 50)
     public String getFirstName() {
         return this.firstName;
     }
@@ -78,6 +59,7 @@ public class UserProfile  implements java.io.Serializable {
     }
 
 
+    @Column(name = "LastName", nullable = false, length = 50)
     public String getLastName() {
         return this.lastName;
     }
@@ -87,6 +69,7 @@ public class UserProfile  implements java.io.Serializable {
     }
 
 
+    @Column(name = "Email", unique = true, nullable = false, length = 50)
     public String getEmail() {
         return this.email;
     }
@@ -96,6 +79,7 @@ public class UserProfile  implements java.io.Serializable {
     }
 
     @Temporal(TemporalType.TIMESTAMP)
+    @Column(name = "CreatedAt", nullable = false, length = 23)
     public Date getCreatedAt() {
         return this.createdAt;
     }
@@ -105,6 +89,7 @@ public class UserProfile  implements java.io.Serializable {
     }
 
     @Temporal(TemporalType.TIMESTAMP)
+    @Column(name = "ModifiedAt", length = 23)
     public Date getModifiedAt() {
         return this.modifiedAt;
     }
@@ -114,6 +99,7 @@ public class UserProfile  implements java.io.Serializable {
     }
 
 
+    @Column(name = "isActive", nullable = false, length = 1)
     public String getIsActive() {
         return this.isActive;
     }
@@ -123,6 +109,7 @@ public class UserProfile  implements java.io.Serializable {
     }
 
 
+    @Column(name = "IsDeleted", nullable = false, length = 1)
     public int getIsDeleted() {
         return isDeleted;
     }
@@ -132,6 +119,7 @@ public class UserProfile  implements java.io.Serializable {
     }
 
 
+    @Column(name = "password", nullable = false)
     public String getPassword() {
         return password;
     }
@@ -140,6 +128,7 @@ public class UserProfile  implements java.io.Serializable {
         this.password = password;
     }
 
+    @Column(name = "mobile", nullable = false)
     public String getMobile() {
         return mobile;
     }
@@ -147,12 +136,12 @@ public class UserProfile  implements java.io.Serializable {
     public void setMobile(String mobile) {
         this.mobile = mobile;
     }
-
-    @ManyToOne
-    @JoinColumn(name = "account_type_id")
+    @ManyToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name = "AccountTypeId", nullable = false)
     public AccountType getAccountType() {
         return accountType;
     }
+
     public void setAccountType(AccountType accountType) {
         this.accountType = accountType;
     }

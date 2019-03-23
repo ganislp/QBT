@@ -1,6 +1,5 @@
 package co.za.quickbuyticketcomponent.utils;
 
-
 public class Messages 
 {
 	public final static int RESPONSE_LDAP_SERVER_TECHINICAL_ERROR_CODE = 501;

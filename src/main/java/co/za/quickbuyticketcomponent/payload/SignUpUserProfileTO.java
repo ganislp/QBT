@@ -9,7 +9,7 @@ public class SignUpUserProfileTO implements Serializable{
     private String email;
     private String password;
     private String mobile;
-    private int accountTypeId;
+    private String accountTypeDesc;
 
 
     public String getFirstName() {
@@ -44,13 +44,7 @@ public class SignUpUserProfileTO implements Serializable{
         this.password = password;
     }
 
-    public int getAccountTypeId() {
-        return accountTypeId;
-    }
 
-    public void setAccountTypeId(int accountTypeId) {
-        this.accountTypeId = accountTypeId;
-    }
 
     public String getMobile() {
         return mobile;
@@ -68,7 +62,15 @@ public class SignUpUserProfileTO implements Serializable{
                 ", email='" + email + '\'' +
                 ", password='" + password + '\'' +
                 ", mobile='" + mobile + '\'' +
-                ", accountTypeId=" + accountTypeId +
+                ", accountTypeId=" + accountTypeDesc +
                 '}';
+    }
+
+    public String getAccountTypeDesc() {
+        return accountTypeDesc;
+    }
+
+    public void setAccountTypeDesc(String accountTypeDesc) {
+        this.accountTypeDesc = accountTypeDesc;
     }
 }

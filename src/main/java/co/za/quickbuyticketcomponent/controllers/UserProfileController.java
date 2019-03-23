@@ -1,6 +1,7 @@
 package co.za.quickbuyticketcomponent.controllers;
 
 
+import co.za.quickbuyticketcomponent.exception.QuickBuyBusinessException;
 import co.za.quickbuyticketcomponent.modals.RestResponse;
 import co.za.quickbuyticketcomponent.modals.UserProfile;
 import co.za.quickbuyticketcomponent.payload.SignUpUserProfileTO;
@@ -8,6 +9,7 @@ import co.za.quickbuyticketcomponent.payload.UserProfileTO;
 import co.za.quickbuyticketcomponent.services.SecurityTokenService;
 import co.za.quickbuyticketcomponent.services.UserProfileService;
 import co.za.quickbuyticketcomponent.utils.Messages;
+import co.za.quickbuyticketcomponent.utils.ResourceUtil;
 import co.za.quickbuyticketcomponent.utils.ResponseBuilderAgent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -34,23 +36,34 @@ public class UserProfileController {
     @Autowired
     SecurityTokenService securityTokenService;
 
+    @Autowired
+    ResourceUtil resourceUtil;
+    RestResponse errorResponse = null;
     @RequestMapping(method = RequestMethod.POST, value = "/authorizeUser")
     public ResponseEntity<?> sighupUserProfile(HttpServletRequest request, @RequestBody UserProfileTO userProfileTO) {
-        logger.info("authorizing user with  ",userProfileTO);
-        UserProfileTO userProfile = userProfileService.authorizeUser(userProfileTO);
-            return new ResponseEntity<>(userProfile,HttpStatus.OK);
 
+        try {
+            logger.info("authorizing user with  ", userProfileTO);
+            UserProfile userProfile = userProfileService.authorizeUser(userProfileTO);
+            return new ResponseEntity(securityTokenService.generateSecurityToken(userProfile), HttpStatus.OK);
+        } catch ( QuickBuyBusinessException exception) {
+           errorResponse = responseBuilderAgent.createFailureResponse(exception, request.getRequestURI().toString(), exception.getErrorCode().intValue());
+            return new ResponseEntity(errorResponse, HttpStatus.INTERNAL_SERVER_ERROR);
+        }
     }
 
-
     @RequestMapping(method = RequestMethod.POST, value = "/signUp")
-    public ResponseEntity<?> signUp(HttpServletRequest request, @RequestBody SignUpUserProfileTO signUpUserProfileTO) {
+    public ResponseEntity<?> signUp(HttpServletRequest request, @RequestBody SignUpUserProfileTO signUpUserProfileTO) throws QuickBuyBusinessException {
         logger.info("Signing up new user {}",signUpUserProfileTO);
-        UserProfileTO userProfile = userProfileService.sighupUserProfile(signUpUserProfileTO);
-        if(userProfile !=null){
+        try {
+        UserProfile userProfile = userProfileService.sighupUserProfile(signUpUserProfileTO);
             return new ResponseEntity<>(userProfile,HttpStatus.OK);
+
+        } catch ( QuickBuyBusinessException exception) {
+            errorResponse = responseBuilderAgent.createFailureResponse(exception, request.getRequestURI().toString(), exception.getErrorCode().intValue());
+            return new ResponseEntity(errorResponse, HttpStatus.INTERNAL_SERVER_ERROR);
         }
-        throw new IllegalArgumentException("No user account found");
+
     }
 
     @RequestMapping(method = RequestMethod.POST, value = "/notify")

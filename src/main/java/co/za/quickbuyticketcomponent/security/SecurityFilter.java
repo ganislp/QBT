@@ -50,7 +50,7 @@ public class SecurityFilter implements Filter {
             }
         }
 
-        if (!((HttpServletRequest) request).getRequestURL().toString().contains("/IsibayaReportingWebService/authorizeUser")) {
+        if (!((HttpServletRequest) request).getRequestURL().toString().contains("/authorizeUser")) {
 
             if (null == authHeaderVal) {
                 httpResponse.setStatus(HttpServletResponse.SC_UNAUTHORIZED);

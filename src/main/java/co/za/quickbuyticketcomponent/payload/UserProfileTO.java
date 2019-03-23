@@ -3,15 +3,24 @@ package co.za.quickbuyticketcomponent.payload;
 import java.io.Serializable;
 
 
-public class UserProfileTO extends SignUpUserProfileTO implements Serializable{
+public class UserProfileTO  implements Serializable{
 
-    private String accessToken;
+    private String email;
+    private String password;
 
-    public String getAccessToken() {
-        return accessToken;
+    public String getEmail() {
+        return email;
     }
 
-    public void setAccessToken(String accessToken) {
-        this.accessToken = accessToken;
+    public void setEmail(String email) {
+        this.email = email;
+    }
+
+    public String getPassword() {
+        return password;
+    }
+
+    public void setPassword(String password) {
+        this.password = password;
     }
 }
