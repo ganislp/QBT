@@ -1,53 +1,91 @@
 package co.za.quickbuyticketcomponent.services;
 
+import co.za.quickbuyticketcomponent.modals.CustomerTickets;
+import co.za.quickbuyticketcomponent.payload.Mail;
+import co.za.quickbuyticketcomponent.utils.FTPConfigProperties;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.Bean;
-import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
-import org.springframework.mail.javamail.JavaMailSenderImpl;
-import org.springframework.scheduling.annotation.Scheduled;
-import org.springframework.stereotype.Component;
+import org.springframework.mail.javamail.MimeMessageHelper;
+import org.springframework.stereotype.Service;
+import org.thymeleaf.context.Context;
+import org.thymeleaf.spring4.SpringTemplateEngine;
 
-import java.util.Properties;
+import javax.mail.MessagingException;
+import javax.mail.internet.MimeMessage;
+import java.io.File;
+import java.nio.charset.StandardCharsets;
+import java.util.HashMap;
+import java.util.Map;
 
-
-@Component
+@Service
 public class EmailServices {
 
- /*   @Bean
-    public JavaMailSender getJavaMailSender() {
-        JavaMailSenderImpl mailSender = new JavaMailSenderImpl();
-        mailSender.setHost("smtp.gmail.com");
-        mailSender.setPort(587);
-
-        mailSender.setUsername("vinayvadlamuri@gmail.com");
-        mailSender.setPassword("POIUYTREWQ123!@#");
-
-        Properties props = mailSender.getJavaMailProperties();
-        props.put("mail.transport.protocol", "smtp");
-        props.put("mail.smtp.auth", "true");
-        props.put("mail.smtp.starttls.enable", "true");
-        props.put("mail.debug", "true");
-
-        return mailSender;
-    }
+    @Autowired
+    private JavaMailSender emailSender;
 
     @Autowired
-    public JavaMailSender emailSender;
+    private SpringTemplateEngine templateEngine;
 
-    public void sendSimpleMessage(
-            String to, String subject, String text) {
-        SimpleMailMessage message = new SimpleMailMessage();
-        message.setTo(to);
-        message.setSubject(subject);
-        message.setText(text);
+    @Autowired
+    FTPConfigProperties ftpConfigProperties;
+
+    Logger logger = LoggerFactory.getLogger(CustomerTicketsService.class);
+
+
+    private void sendSimpleMessage(Mail mail,File pdf) throws MessagingException {
+        MimeMessage message = emailSender.createMimeMessage();
+        MimeMessageHelper helper = new MimeMessageHelper(message,
+                MimeMessageHelper.MULTIPART_MODE_MIXED_RELATED,
+                StandardCharsets.UTF_8.name());
+//        helper.addAttachment("YourTickets.png",pdf);
+        logger.info("print value {}", mail.getModel().get("name"));
+        Context context = new Context();
+        context.setVariables(mail.getModel());
+        String html = templateEngine.process("email-template", context);
+
+        helper.setTo(mail.getTo());
+        helper.setText(html, true);
+        helper.setSubject(mail.getSubject());
+        helper.setFrom(mail.getFrom());
         emailSender.send(message);
-
-        System.out.println("Email Sent successfully");
+        logger.info("Email Sent Successfully");
     }
-    @Scheduled(fixedRate = 500000)
-    public void sendEmail(){
-        System.out.println("Testing");
-        sendSimpleMessage("vinayv@discovery.co.za","Testing","test");
-    }*/
+
+    public void sendEmailToClient(CustomerTickets customerTickets, HashMap<String, File> attachments) throws MessagingException {
+        Mail mail = new Mail();
+        mail.setFrom(ftpConfigProperties.getUser());
+        mail.setTo(customerTickets.getUserId().getEmail());
+        mail.setSubject("Tickets Confirmation");
+        Map<String, Object> data = new HashMap<String, Object>();
+        data.put("name", toCamelCase(customerTickets.getUserId().getFirstName() + " " + customerTickets.getUserId().getLastName()));
+
+        data.put("combo", customerTickets.getComboTickets());
+        data.put("cricket", customerTickets.getCricketTickets());
+        data.put("cultural", customerTickets.getCulturalTickets());
+
+        data.put("qrcode", "http://technologykings.co.za/" + customerTickets.getUserId().getUserId() + "/" + customerTickets.getReferenceNumber() + "/" + attachments.get("qrcode").getName());
+        mail.setModel(data);
+        sendSimpleMessage(mail,attachments.get("Pdf"));
+        System.out.println("http://technologykings.co.za/" + customerTickets.getUserId().getUserId() + "/" + customerTickets.getReferenceNumber() + "/" + attachments.get("qrcode").getName());
+    }
+
+    private String toCamelCase(String fullname) {
+        if (fullname == null)
+            return null;
+
+        final StringBuilder ret = new StringBuilder(fullname.length());
+
+        for (final String word : fullname.split(" ")) {
+            if (!word.isEmpty()) {
+                ret.append(Character.toUpperCase(word.charAt(0)));
+                ret.append(word.substring(1).toLowerCase());
+            }
+            if (!(ret.length() == fullname.length()))
+                ret.append(" ");
+        }
+
+        return ret.toString();
+    }
 }

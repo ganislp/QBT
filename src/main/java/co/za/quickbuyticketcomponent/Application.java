@@ -21,9 +21,6 @@ import java.util.Locale;
 @EnableScheduling
 public class Application extends SpringBootServletInitializer implements WebApplicationInitializer {
 
-    @Autowired
-    private MessageSource messageSource;
-
 
 
     private Logger log = LoggerFactory.getLogger(getClass());
@@ -39,8 +36,6 @@ public class Application extends SpringBootServletInitializer implements WebAppl
         SpringApplication application = new SpringApplication(Application.class);
         application.setAdditionalProfiles(arguments);
         application.run();
-
-
     }
 
 

@@ -10,12 +10,12 @@ import co.za.quickbuyticketcomponent.repositories.UserProfileRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.core.AuthenticationException;
 import org.springframework.stereotype.Service;
 
 import java.util.Date;
 
-import static co.za.quickbuyticketcomponent.utils.QuickBuyMessageConstant.*;
+//import static co.za.quickbuyticketcomponent.utils.QuickBuyMessageConstant.*;
+import static co.za.quickbuyticketcomponent.utils.Exceptions.*;
 import static co.za.quickbuyticketcomponent.utils.QuickBuyUtil.throwQuickBuyBusinessException;
 
 @Service
@@ -31,14 +31,16 @@ public class UserProfileService {
     private AccountTypeRepository accountTypeRepository;
 
     public UserProfile saveUserProfile(UserProfile userProfile) {
-        return userProfileRepository.save(userProfile);
+        userProfileRepository.save(userProfile);
+        userProfileRepository.flush();
+        return userProfile;
     }
 
     public UserProfile findAllByEmail(String email) {
-        return userProfileRepository.findAllByEmail(email);
+        return userProfileRepository.findByEmail(email);
     }
 
-    public AccountType getAccountTypeById(String accountTypeDesc) {
+    public AccountType getAccountTypeByDesc(String accountTypeDesc) {
         logger.info("accountTypeId  {}", accountTypeRepository.findByAccountTypeDesc(accountTypeDesc));
         return accountTypeRepository.findByAccountTypeDesc(accountTypeDesc);
     }
@@ -47,40 +49,40 @@ public class UserProfileService {
         return userProfileRepository.countUserProfileByEmail(email);
     }
 
-    public UserProfile findAllByEmailAndAccountType_AccountTypeDesc(String email, AccountType accountType ) {
+    public UserProfile findAllByEmailAndAccountType_AccountTypeDesc(String email, AccountType accountType) {
         return userProfileRepository.findAllByEmailAndAccountType(email, accountType);
     }
 
     public UserProfile authorizeUser(UserProfileTO userProfileTO) throws QuickBuyBusinessException {
 
         UserProfile userProfile = userProfileRepository.findByEmailAndPassword(userProfileTO.getEmail(), userProfileTO.getPassword());
-        if(userProfile == null){
+        if (userProfile == null) {
             throwQuickBuyBusinessException(RESPONSE_BAD_CREDENTIALS_EXCEPTION);
 
         }
 
 
-      return userProfile;
+        return userProfile;
     }
 
-    public UserProfile sighupUserProfile(SignUpUserProfileTO userProfileTO)throws QuickBuyBusinessException{
+    public UserProfile sighupUserProfile(SignUpUserProfileTO userProfileTO) throws QuickBuyBusinessException {
         AccountType accountType = new AccountType();
-         accountType = getAccountTypeById(userProfileTO.getAccountTypeDesc());
+        accountType = getAccountTypeByDesc(userProfileTO.getAccountTypeDesc());
+
         UserProfile newUser = new UserProfile();
         UserProfile userProfile = new UserProfile();
         if (accountType == null) {
             throwQuickBuyBusinessException(ACCOUNT_TYPE_INVALID_EXCEPTION);
-        }
-        else if(accountType.getAccountTypeDesc().equalsIgnoreCase("Guast")){
-             userProfile = findAllByEmail(userProfileTO.getEmail());
-            if(userProfile != null){
-                UserProfile guastUserProfileExist = new UserProfile();
+        } else if (accountType.getAccountTypeDesc().equalsIgnoreCase("Guest")) {
+            userProfile = findAllByEmail(userProfileTO.getEmail());
+            if (userProfile != null) {
+                UserProfile guestUserProfileExist = new UserProfile();
                 userProfile.setModifiedAt(new Date());
-                guastUserProfileExist =     saveUserProfile(userProfile);
-                return guastUserProfileExist;
+                guestUserProfileExist = saveUserProfile(userProfile);
+                return guestUserProfileExist;
             }
             else {
-                 userProfile = new UserProfile();
+                userProfile = new UserProfile();
                 userProfile.setFirstName(userProfileTO.getFirstName());
                 userProfile.setLastName(userProfileTO.getLastName());
                 userProfile.setEmail(userProfileTO.getEmail());
@@ -94,14 +96,11 @@ public class UserProfileService {
             }
 
 
-
-
-        }
-
-        else if(accountType.getAccountTypeDesc().equalsIgnoreCase("Singup")) {
-            accountType = getAccountTypeById(userProfileTO.getAccountTypeDesc());
-            userProfile =  findAllByEmailAndAccountType_AccountTypeDesc(userProfileTO.getEmail(),accountType);
-            if (countUserProfileByEmail(userProfileTO.getEmail()) == 0 && userProfile == null) {
+        } else if (accountType.getAccountTypeDesc().equalsIgnoreCase("customer")) {
+            accountType = getAccountTypeByDesc(userProfileTO.getAccountTypeDesc());
+            userProfile = findAllByEmailAndAccountType_AccountTypeDesc(userProfileTO.getEmail(), accountType);
+            Long emailCount = countUserProfileByEmail(userProfileTO.getEmail());
+            if (emailCount == 0 && userProfile == null) {
                 userProfile = new UserProfile();
                 userProfile.setFirstName(userProfileTO.getFirstName());
                 userProfile.setLastName(userProfileTO.getLastName());
@@ -114,41 +113,26 @@ public class UserProfileService {
                 userProfile.setIsDeleted(0);
                 newUser = saveUserProfile(userProfile);
 
-            } else if (countUserProfileByEmail(userProfileTO.getEmail()) > 0 && userProfile != null) {
-               accountType = getAccountTypeById(userProfileTO.getAccountTypeDesc());
+            } else if (emailCount > 0 && userProfile == null) {
+                userProfile = findAllByEmail(userProfileTO.getEmail());
+                accountType = getAccountTypeByDesc(userProfileTO.getAccountTypeDesc());
                 userProfile.setAccountType(accountType);
                 userProfile.setModifiedAt(new Date());
                 newUser = saveUserProfile(userProfile);
-
-
-            }
-
-         else if (countUserProfileByEmail(userProfileTO.getEmail()) > 0 && userProfile == null) {
-
-                AccountType accountTypenew = getAccountTypeById(userProfileTO.getAccountTypeDesc());
-            userProfile.setAccountType(accountTypenew);
-            userProfile.setModifiedAt(new Date());
-            newUser = saveUserProfile(userProfile);
-            throwQuickBuyBusinessException(ALREADY_USER_EXIST);
-
-        }
-            else {
+            } else if (emailCount > 0) {
+                AccountType accountTypenew = getAccountTypeByDesc(userProfileTO.getAccountTypeDesc());
+                userProfile.setAccountType(accountTypenew);
+                userProfile.setModifiedAt(new Date());
+                newUser = saveUserProfile(userProfile);
                 throwQuickBuyBusinessException(ALREADY_USER_EXIST);
+            } else {
+                throwQuickBuyBusinessException(INVALID_ACCOUNT_TYPE);
             }
         }
+
+        newUser.setPassword(null);
         return newUser;
     }
 
-
-    public UserProfileTO mapUserProfileToResponse(UserProfile newUser) {
-        UserProfileTO userProfile = new UserProfileTO();
-       // userProfile.setFirstName(newUser.getFirstName());
-       // userProfile.setLastName(newUser.getLastName());
-       // userProfile.setEmail(newUser.getEmail());
-       // userProfile.setMobile(newUser.getMobile());
-       // userProfile.setAccountTypeDesc(newUser.getAccountType().getAccountTypeId());
-        //userProfile.setAccessToken("jkiunsdjlkjhd2xdsds8932234");
-        return userProfile;
-    }
 
 }

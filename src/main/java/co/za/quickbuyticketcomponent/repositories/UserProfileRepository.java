@@ -10,6 +10,6 @@ public interface UserProfileRepository extends JpaRepository<UserProfile, Long> 
     long countUserProfileByEmail(String email);
     UserProfile findAllByEmailAndAccountType(String email, AccountType accountType);
     UserProfile findByEmailAndPassword(String email,String password);
-    UserProfile findAllByEmail(String email);
+    UserProfile findByEmail(String email);
 
 }

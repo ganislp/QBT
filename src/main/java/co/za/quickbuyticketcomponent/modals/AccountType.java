@@ -40,6 +40,13 @@ public class AccountType implements java.io.Serializable {
         this.accountTypeDesc = accountTypeDesc;
     }
 
+    @Override
+    public String toString() {
+        return "AccountType{" +
+                "accountTypeId=" + accountTypeId +
+                ", accountTypeDesc='" + accountTypeDesc + '\'' +
+                '}';
+    }
 }
 
 

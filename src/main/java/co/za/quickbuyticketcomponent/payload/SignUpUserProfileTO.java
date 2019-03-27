@@ -62,7 +62,7 @@ public class SignUpUserProfileTO implements Serializable{
                 ", email='" + email + '\'' +
                 ", password='" + password + '\'' +
                 ", mobile='" + mobile + '\'' +
-                ", accountTypeId=" + accountTypeDesc +
+                ", accountTypeDesc=" + accountTypeDesc +
                 '}';
     }
 

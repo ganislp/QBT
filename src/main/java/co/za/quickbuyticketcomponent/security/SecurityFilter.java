@@ -6,6 +6,7 @@ import co.za.quickbuyticketcomponent.modals.AuthorizedUserResponse;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.Jwts;
+import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
 
 import javax.annotation.PostConstruct;
@@ -35,20 +36,20 @@ public class SecurityFilter implements Filter {
           final HttpServletRequest httpRequest = (HttpServletRequest) request;
         final HttpServletResponse httpResponse = (HttpServletResponse) response;
         final String authHeaderVal = httpRequest.getHeader("x-auth-token");
-        final String testingHeaderValue = httpRequest.getHeader("services-testing");
+//        final String testingHeaderValue = httpRequest.getHeader("services-testing");
 
         if("OPTIONS".equalsIgnoreCase(httpRequest.getMethod())) {
             httpResponse.setStatus(HttpServletResponse.SC_OK);
             chain.doFilter(httpRequest, httpResponse);
             return;
         }
-
-        if (testingHeaderValue != null) {
-            if (testingHeaderValue.equalsIgnoreCase("services-testing")) {
-                chain.doFilter(httpRequest, httpResponse);
-                return;
-            }
-        }
+//
+//        if (testingHeaderValue != null) {
+//            if (testingHeaderValue.equalsIgnoreCase("services-testing")) {
+//                chain.doFilter(httpRequest, httpResponse);
+//                return;
+//            }
+//        }
 
         if (!((HttpServletRequest) request).getRequestURL().toString().contains("/authorizeUser")) {
 
@@ -89,6 +90,7 @@ public class SecurityFilter implements Filter {
         return Base64
                 .getEncoder()
                 .encodeToString("something-secret-you-cannot-keep-it".getBytes());
+
     }
 
 

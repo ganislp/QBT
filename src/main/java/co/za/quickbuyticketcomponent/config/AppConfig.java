@@ -17,7 +17,6 @@ public class AppConfig {
     @Bean(name="messageSource")
     public MessageSource messageSource() {
         ReloadableResourceBundleMessageSource messageSource = new ReloadableResourceBundleMessageSource();
-
         messageSource.setBasenames("messages/messageResource");
         messageSource.setDefaultEncoding("UTF-8");
         messageSource.setUseCodeAsDefaultMessage(true);

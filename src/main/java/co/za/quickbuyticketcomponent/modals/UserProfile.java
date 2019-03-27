@@ -39,7 +39,7 @@ public class UserProfile  implements java.io.Serializable {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
 
-    @Column(name = "UserID", unique = true, nullable = false)
+    @Column(name = "UserID", unique = true)
     public int getUserId() {
         return this.userId;
     }
@@ -49,7 +49,7 @@ public class UserProfile  implements java.io.Serializable {
     }
 
 
-    @Column(name = "FirstName", nullable = false, length = 50)
+    @Column(name = "FirstName",  length = 50)
     public String getFirstName() {
         return this.firstName;
     }
@@ -59,7 +59,7 @@ public class UserProfile  implements java.io.Serializable {
     }
 
 
-    @Column(name = "LastName", nullable = false, length = 50)
+    @Column(name = "LastName",  length = 50)
     public String getLastName() {
         return this.lastName;
     }
@@ -69,7 +69,7 @@ public class UserProfile  implements java.io.Serializable {
     }
 
 
-    @Column(name = "Email", unique = true, nullable = false, length = 50)
+    @Column(name = "Email", unique = true,  length = 50)
     public String getEmail() {
         return this.email;
     }
@@ -79,7 +79,7 @@ public class UserProfile  implements java.io.Serializable {
     }
 
     @Temporal(TemporalType.TIMESTAMP)
-    @Column(name = "CreatedAt", nullable = false, length = 23)
+    @Column(name = "CreatedAt",  length = 23)
     public Date getCreatedAt() {
         return this.createdAt;
     }
@@ -99,7 +99,7 @@ public class UserProfile  implements java.io.Serializable {
     }
 
 
-    @Column(name = "isActive", nullable = false, length = 1)
+    @Column(name = "isActive",  length = 1)
     public String getIsActive() {
         return this.isActive;
     }
@@ -109,7 +109,7 @@ public class UserProfile  implements java.io.Serializable {
     }
 
 
-    @Column(name = "IsDeleted", nullable = false, length = 1)
+    @Column(name = "IsDeleted",  length = 1)
     public int getIsDeleted() {
         return isDeleted;
     }
@@ -119,7 +119,7 @@ public class UserProfile  implements java.io.Serializable {
     }
 
 
-    @Column(name = "password", nullable = false)
+    @Column(name = "password")
     public String getPassword() {
         return password;
     }
@@ -128,7 +128,7 @@ public class UserProfile  implements java.io.Serializable {
         this.password = password;
     }
 
-    @Column(name = "mobile", nullable = false)
+    @Column(name = "mobile")
     public String getMobile() {
         return mobile;
     }
@@ -136,13 +136,31 @@ public class UserProfile  implements java.io.Serializable {
     public void setMobile(String mobile) {
         this.mobile = mobile;
     }
+
     @ManyToOne(fetch = FetchType.EAGER)
-    @JoinColumn(name = "AccountTypeId", nullable = false)
+    @JoinColumn(name = "AccountTypeId")
     public AccountType getAccountType() {
         return accountType;
     }
 
     public void setAccountType(AccountType accountType) {
         this.accountType = accountType;
+    }
+
+    @Override
+    public String toString() {
+        return "UserProfile{" +
+                "userId=" + userId +
+                ", firstName='" + firstName + '\'' +
+                ", lastName='" + lastName + '\'' +
+                ", email='" + email + '\'' +
+                ", password='" + password + '\'' +
+                ", mobile='" + mobile + '\'' +
+                ", accountType=" + accountType +
+                ", createdAt=" + createdAt +
+                ", modifiedAt=" + modifiedAt +
+                ", isActive='" + isActive + '\'' +
+                ", isDeleted=" + isDeleted +
+                '}';
     }
 }

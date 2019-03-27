@@ -7,6 +7,8 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.context.support.ResourceBundleMessageSource;
 import java.io.IOException;
 import java.util.Locale;
+
+
 public class MessageSourceExample {
     public static void main (String[] args) throws IOException {
         Locale.setDefault(Locale.US);

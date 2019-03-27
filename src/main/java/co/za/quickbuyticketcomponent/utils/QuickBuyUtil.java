@@ -106,6 +106,11 @@ public class QuickBuyUtil {
         throw new QuickBuyBusinessException(errorCode, getMessage(errorCode));
     }
 
+    public static void throwQuickBuyBusinessException(String errorCode)
+            throws QuickBuyBusinessException {
+        throw new QuickBuyBusinessException(errorCode);
+    }
+
     /**
      * Checks if object is null .
      *
@@ -135,7 +140,6 @@ public class QuickBuyUtil {
     /**
      * Throw event management business exception.
      *
-     * @param errorCode the error code
      *
      * @throws QuickBuyBusinessException the event management business exception
      */
