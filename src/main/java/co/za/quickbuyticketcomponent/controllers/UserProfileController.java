@@ -5,6 +5,7 @@ import co.za.quickbuyticketcomponent.exception.QuickBuyBusinessException;
 import co.za.quickbuyticketcomponent.modals.RestResponse;
 import co.za.quickbuyticketcomponent.modals.UserProfile;
 import co.za.quickbuyticketcomponent.payload.*;
+import co.za.quickbuyticketcomponent.services.BulkSmsService;
 import co.za.quickbuyticketcomponent.services.CustomerTicketsService;
 import co.za.quickbuyticketcomponent.services.SecurityTokenService;
 import co.za.quickbuyticketcomponent.services.UserProfileService;
@@ -52,6 +53,8 @@ public class UserProfileController {
     @Autowired
     CustomerTicketsService customerTicketsService;
 
+    @Autowired
+    BulkSmsService bulkSmsService;
 
     RestResponse errorResponse = null;
 
@@ -59,13 +62,16 @@ public class UserProfileController {
     public ResponseEntity<?> sighupUserProfile(HttpServletRequest request, @RequestBody UserProfileTO userProfileTO) {
         try {
             logger.info("authorizing user with  ", userProfileTO);
+
             UserProfile userProfile = userProfileService.authorizeUser(userProfileTO);
+
             return new ResponseEntity(securityTokenService.generateSecurityToken(userProfile), HttpStatus.OK);
         } catch (QuickBuyBusinessException exception) {
             errorResponse = responseBuilderAgent.createFailureResponse(exception, request.getRequestURI().toString(), HttpStatus.INTERNAL_SERVER_ERROR.value());
             return new ResponseEntity(errorResponse, HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
+
 
     @RequestMapping(method = RequestMethod.POST, value = "/signUp")
     public ResponseEntity<?> signUp(HttpServletRequest request, @RequestBody SignUpUserProfileTO signUpUserProfileTO) throws QuickBuyBusinessException {
@@ -150,16 +156,36 @@ public class UserProfileController {
     }
 
     @RequestMapping(method = RequestMethod.POST, value = "/completePaymentProcess")
-    public ResponseEntity<?> completePaymentProcess(HttpServletRequest request, @RequestBody CompletePaymentProcessTO completePaymentProcessTO) throws QuickBuyBusinessException {
+    public ResponseEntity<CompletePaymentResponseTO> completePaymentProcess(HttpServletRequest request, @RequestBody CompletePaymentProcessTO completePaymentProcessTO) throws QuickBuyBusinessException {
         logger.info("Complete Payment Process Received Object  {}", completePaymentProcessTO);
         try {
-             customerTicketsService.completePaymentProcess(completePaymentProcessTO);
+            CompletePaymentResponseTO completePaymentResponseTO = customerTicketsService.completePaymentProcess(completePaymentProcessTO);
+            return new ResponseEntity(completePaymentResponseTO, HttpStatus.OK);
+        } catch (Exception exception) {
+            exception.printStackTrace();
+            errorResponse = responseBuilderAgent.createFailureResponse(exception, request.getRequestURI().toString(), HttpStatus.INTERNAL_SERVER_ERROR.value());
+            return new ResponseEntity(errorResponse, HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+
+    @RequestMapping(method = RequestMethod.POST, value = "/sms")
+    public ResponseEntity<BulkSMSResponse> bulkSms(HttpServletRequest request, @RequestBody BulkSMSRequest[] completePaymentProcessTO) throws QuickBuyBusinessException {
+        logger.info("Complete Payment Process Received Object  {}", completePaymentProcessTO);
+        try {
+            bulkSmsService.sendReferenceNotification(completePaymentProcessTO[0]);
             return new ResponseEntity(HttpStatus.OK);
         } catch (Exception exception) {
             exception.printStackTrace();
             errorResponse = responseBuilderAgent.createFailureResponse(exception, request.getRequestURI().toString(), HttpStatus.INTERNAL_SERVER_ERROR.value());
             return new ResponseEntity(errorResponse, HttpStatus.INTERNAL_SERVER_ERROR);
         }
+    }
+
+
+    @RequestMapping("/hello")
+    public ResponseEntity<UserProfileTO> sayHello() {
+        return new ResponseEntity(new UserProfileTO("vinay","vinay"), HttpStatus.OK);
     }
 
 }

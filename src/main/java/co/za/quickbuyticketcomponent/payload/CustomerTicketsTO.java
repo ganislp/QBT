@@ -26,6 +26,8 @@ public class CustomerTicketsTO extends CustomerTransactionDetailsTO implements j
     private int CricketTickets;
     @JsonProperty("CulturalTickets")
     private int CulturalTickets;
+    @JsonProperty("KidsTickets")
+    private int KidsTickets;
     @JsonProperty("PaymentReceived")
     private int PaymentReceived;
     @JsonProperty("EmailSent")
@@ -167,18 +169,27 @@ public class CustomerTicketsTO extends CustomerTransactionDetailsTO implements j
         CustomerEmail = customerEmail;
     }
 
+    public int getKidsTickets() {
+        return KidsTickets;
+    }
+
+    public void setKidsTickets(int kidsTickets) {
+        KidsTickets = kidsTickets;
+    }
+
     @Override
     public String toString() {
         return "CustomerTicketsTO{" +
                 "customerTicketId=" + customerTicketId +
                 ", UserId=" + UserId +
-                ", ComboTickets='" + ComboTickets + '\'' +
-                ", AccessToken='" + access_token + '\'' +
+                ", ComboTickets=" + ComboTickets +
+                ", access_token='" + access_token + '\'' +
                 ", CustomerEmail='" + CustomerEmail + '\'' +
-                ", CricketTickets='" + CricketTickets + '\'' +
-                ", CulturalTickets='" + CulturalTickets + '\'' +
-                ", PaymentReceived='" + PaymentReceived + '\'' +
-                ", EmailSent='" + EmailSent + '\'' +
+                ", CricketTickets=" + CricketTickets +
+                ", CulturalTickets=" + CulturalTickets +
+                ", KidsTickets=" + KidsTickets +
+                ", PaymentReceived=" + PaymentReceived +
+                ", EmailSent=" + EmailSent +
                 ", ReferenceNumber='" + ReferenceNumber + '\'' +
                 ", PdfLink='" + PdfLink + '\'' +
                 ", pdfFilename='" + pdfFilename + '\'' +

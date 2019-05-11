@@ -5,6 +5,14 @@ import java.io.Serializable;
 
 public class UserProfileTO  implements Serializable{
 
+    public UserProfileTO(String email, String password) {
+        this.email = email;
+        this.password = password;
+    }
+
+    public UserProfileTO() {
+    }
+
     private String email;
     private String password;
 

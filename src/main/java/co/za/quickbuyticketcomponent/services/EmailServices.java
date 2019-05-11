@@ -13,8 +13,10 @@ import org.thymeleaf.context.Context;
 import org.thymeleaf.spring4.SpringTemplateEngine;
 
 import javax.mail.MessagingException;
+import javax.mail.internet.InternetAddress;
 import javax.mail.internet.MimeMessage;
 import java.io.File;
+import java.io.UnsupportedEncodingException;
 import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.Map;
@@ -23,7 +25,7 @@ import java.util.Map;
 public class EmailServices {
 
     @Autowired
-    private JavaMailSender emailSender;
+    JavaMailSender emailSender;
 
     @Autowired
     private SpringTemplateEngine templateEngine;
@@ -39,7 +41,7 @@ public class EmailServices {
         MimeMessageHelper helper = new MimeMessageHelper(message,
                 MimeMessageHelper.MULTIPART_MODE_MIXED_RELATED,
                 StandardCharsets.UTF_8.name());
-//        helper.addAttachment("YourTickets.png",pdf);
+        helper.addAttachment("YourTickets.pdf",pdf);
         logger.info("print value {}", mail.getModel().get("name"));
         Context context = new Context();
         context.setVariables(mail.getModel());
@@ -49,13 +51,19 @@ public class EmailServices {
         helper.setText(html, true);
         helper.setSubject(mail.getSubject());
         helper.setFrom(mail.getFrom());
+        helper.setPriority(1);
+
         emailSender.send(message);
         logger.info("Email Sent Successfully");
     }
 
-    public void sendEmailToClient(CustomerTickets customerTickets, HashMap<String, File> attachments) throws MessagingException {
+    public void sendEmailToClient(CustomerTickets customerTickets, HashMap<String, Object> attachments) throws MessagingException {
         Mail mail = new Mail();
-        mail.setFrom(ftpConfigProperties.getUser());
+        try {
+            mail.setFrom(new InternetAddress("tickets@quickbuyticket.com", "Tickets Confirmation"));
+        } catch (UnsupportedEncodingException e) {
+            e.printStackTrace();
+        }
         mail.setTo(customerTickets.getUserId().getEmail());
         mail.setSubject("Tickets Confirmation");
         Map<String, Object> data = new HashMap<String, Object>();
@@ -64,11 +72,14 @@ public class EmailServices {
         data.put("combo", customerTickets.getComboTickets());
         data.put("cricket", customerTickets.getCricketTickets());
         data.put("cultural", customerTickets.getCulturalTickets());
+        data.put("kids", customerTickets.getKidsTickets());
+        data.put("referenceNumber", customerTickets.getReferenceNumber());
 
-        data.put("qrcode", "http://technologykings.co.za/" + customerTickets.getUserId().getUserId() + "/" + customerTickets.getReferenceNumber() + "/" + attachments.get("qrcode").getName());
+
+        data.put("qrcode", "http://technologykings.co.za/" + customerTickets.getUserId().getUserId() + "/" + customerTickets.getReferenceNumber() + "/" + attachments.get("qrcodename"));
         mail.setModel(data);
-        sendSimpleMessage(mail,attachments.get("Pdf"));
-        System.out.println("http://technologykings.co.za/" + customerTickets.getUserId().getUserId() + "/" + customerTickets.getReferenceNumber() + "/" + attachments.get("qrcode").getName());
+        sendSimpleMessage(mail,(File)attachments.get("pdf"));
+        System.out.println("http://technologykings.co.za/" + customerTickets.getUserId().getUserId() + "/" + customerTickets.getReferenceNumber() + "/" + attachments.get("qrcodename"));
     }
 
     private String toCamelCase(String fullname) {

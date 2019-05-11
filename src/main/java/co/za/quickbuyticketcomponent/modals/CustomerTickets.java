@@ -17,6 +17,7 @@ public class CustomerTickets implements java.io.Serializable {
     private int ComboTickets;
     private int CricketTickets;
     private int CulturalTickets;
+    private int KidsTickets;
     private int PaymentReceived;
     private int EmailSent;
     private String ReferenceNumber;
@@ -150,23 +151,19 @@ public class CustomerTickets implements java.io.Serializable {
         return totalPrice;
     }
 
+
     public void setTotalPrice(BigDecimal totalPrice) {
         this.totalPrice = totalPrice;
     }
 
-    public CustomerTickets(int customerTicketId, UserProfile userId, int comboTickets, int cricketTickets, int culturalTickets, int paymentReceived, int emailSent, String referenceNumber, String pdfLink, String pdfFilename, Date createdDate, Date updatedDate, BigDecimal totalPrice) {
-        this.customerTicketId = customerTicketId;
-        UserId = userId;
-        ComboTickets = comboTickets;
-        CricketTickets = cricketTickets;
-        CulturalTickets = culturalTickets;
-        PaymentReceived = paymentReceived;
-        EmailSent = emailSent;
-        ReferenceNumber = referenceNumber;
-        PdfLink = pdfLink;
-        this.pdfFilename = pdfFilename;
-        CreatedDate = createdDate;
-        UpdatedDate = updatedDate;
-        this.totalPrice = totalPrice;
+    @Column(name = "KidsTickets")
+    public int getKidsTickets() {
+        return KidsTickets;
     }
+
+    public void setKidsTickets(int kidsTickets) {
+        KidsTickets = kidsTickets;
+    }
+
+
 }

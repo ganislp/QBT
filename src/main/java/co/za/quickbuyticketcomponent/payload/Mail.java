@@ -1,11 +1,12 @@
 package co.za.quickbuyticketcomponent.payload;
 
+import javax.mail.internet.InternetAddress;
 import java.util.List;
 import java.util.Map;
 
 public class Mail {
 
-    private String from;
+    private InternetAddress from;
     private String to;
     private String subject;
     private List<Object> attachments;
@@ -15,11 +16,11 @@ public class Mail {
 
     }
 
-    public String getFrom() {
+    public InternetAddress getFrom() {
         return from;
     }
 
-    public void setFrom(String from) {
+    public void setFrom(InternetAddress from) {
         this.from = from;
     }
 

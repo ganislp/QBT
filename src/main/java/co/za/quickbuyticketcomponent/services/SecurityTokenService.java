@@ -31,9 +31,10 @@ public class SecurityTokenService {
 
     public AuthorizedUserResponse generateSecurityToken(UserProfile userProfile) {
         AuthorizedUserResponse authorizedUserResponse = new AuthorizedUserResponse();
-           authorizedUserResponse.setEmail(userProfile.getEmail());
-       authorizedUserResponse.setAccountType(userProfile.getAccountType().getAccountTypeDesc());
+        authorizedUserResponse.setEmail(userProfile.getEmail());
+        authorizedUserResponse.setAccountType(userProfile.getAccountType().getAccountTypeDesc());
         authorizedUserResponse.setIsActive(userProfile.getIsActive());
+        authorizedUserResponse.setFirstname(userProfile.getFirstName());
         return createToken(authorizedUserResponse);
     }
 
