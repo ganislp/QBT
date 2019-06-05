@@ -5,10 +5,7 @@ import co.za.quickbuyticketcomponent.exception.QuickBuyBusinessException;
 import co.za.quickbuyticketcomponent.modals.RestResponse;
 import co.za.quickbuyticketcomponent.modals.UserProfile;
 import co.za.quickbuyticketcomponent.payload.*;
-import co.za.quickbuyticketcomponent.services.BulkSmsService;
-import co.za.quickbuyticketcomponent.services.CustomerTicketsService;
-import co.za.quickbuyticketcomponent.services.SecurityTokenService;
-import co.za.quickbuyticketcomponent.services.UserProfileService;
+import co.za.quickbuyticketcomponent.services.*;
 import co.za.quickbuyticketcomponent.utils.ResourceUtil;
 import co.za.quickbuyticketcomponent.utils.ResponseBuilderAgent;
 import org.apache.http.HttpEntity;
@@ -55,6 +52,9 @@ public class UserProfileController {
 
     @Autowired
     BulkSmsService bulkSmsService;
+
+    @Autowired
+    BulkTicketsService bulkTicketsService;
 
     RestResponse errorResponse = null;
 
@@ -183,9 +183,27 @@ public class UserProfileController {
     }
 
 
-    @RequestMapping("/hello")
-    public ResponseEntity<UserProfileTO> sayHello() {
-        return new ResponseEntity(new UserProfileTO("vinay","vinay"), HttpStatus.OK);
+    @RequestMapping("/scanTickets")
+    public ResponseEntity<VerifyTicketsTO> sayHello(HttpServletRequest request, @RequestBody VerifyTicketsTO verifyTicketsTO ) {
+     logger.info(verifyTicketsTO.getReferenceNumber());
+        return new ResponseEntity(new VerifyTicketsTO(customerTicketsService.checkReferenceNumber(verifyTicketsTO.getReferenceNumber())), HttpStatus.OK);
     }
+
+    @RequestMapping(method = RequestMethod.POST, value = "/createBulkTickets")
+    public ResponseEntity<BulkSMSResponse> bulkSms(HttpServletRequest request, @RequestBody BulkTicketsTO[] bulkTickets) throws QuickBuyBusinessException {
+        logger.info("createBulkTickets Received Object  {}", bulkTickets);
+        try {
+            for(BulkTicketsTO bulkTicketsTO: bulkTickets ) {
+                bulkTicketsService.createTickets(bulkTicketsTO);
+            }
+            return new ResponseEntity(HttpStatus.OK);
+        } catch (Exception exception) {
+            exception.printStackTrace();
+            errorResponse = responseBuilderAgent.createFailureResponse(exception, request.getRequestURI().toString(), HttpStatus.INTERNAL_SERVER_ERROR.value());
+            return new ResponseEntity(errorResponse, HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+
 
 }

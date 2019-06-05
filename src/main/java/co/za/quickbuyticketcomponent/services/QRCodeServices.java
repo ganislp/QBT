@@ -16,7 +16,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+import org.springframework.util.ResourceUtils;
 
+import javax.imageio.stream.FileImageInputStream;
 import java.io.*;
 import java.util.HashMap;
 
@@ -71,6 +73,7 @@ public class QRCodeServices {
 //
 //            throw new IllegalArgumentException("QR Code Creation failed");
 //        }
+
     }
 
     private File createMailAttachment(CustomerTickets customerTickets, File qrCodeImage) throws IOException {
@@ -103,7 +106,8 @@ public class QRCodeServices {
         File barCodePdf = null;
         ImageData logoData = null;
         try {
-            logoData = ImageDataFactory.create("http://technologykings.co.za/QUICK-BUY-FINAL.png");
+//            logoData = ImageDataFactory.create("http://technologykings.co.za/QUICK-BUY-FINAL.png");
+            logoData = ImageDataFactory.create(readFileToByteArray(ResourceUtils.getFile("/Users/vinayvadlamuri/Documents/Discovery/Projects/QBT/src/main/resources/logo.png")));
 
 
             // Creating the image
@@ -159,7 +163,7 @@ public class QRCodeServices {
             if(customerTickets.getCricketTickets() != 0) {
                 // Populating row 3 and adding it to the table
                 Cell cell5 = new Cell();
-                cell5.add("Number Of Cricket Tickets");
+                cell5.add("Number Of Cricket Stand Tickets");
                 table.addCell(cell5);
 
 
@@ -168,6 +172,20 @@ public class QRCodeServices {
                 table.addCell(cell6);
 
             }
+
+            if(customerTickets.getGrasstickets() != 0) {
+                // Populating row 3 and adding it to the table
+                Cell cell05 = new Cell();
+                cell05.add("Number Of Cricket Grass Tickets");
+                table.addCell(cell05);
+
+
+                Cell cell06 = new Cell();
+                cell06.add(String.valueOf(customerTickets.getGrasstickets()));
+                table.addCell(cell06);
+
+            }
+
 
             if(customerTickets.getCulturalTickets() != 0) {
                 // Populating row 4 and adding it to the table
@@ -181,6 +199,17 @@ public class QRCodeServices {
             }
 
 
+            if(customerTickets.getKidsTickets() != 0) {
+                // Populating row 4 and adding it to the table
+                Cell cell7 = new Cell();
+                cell7.add("Number Of Kids ");
+                table.addCell(cell7);
+
+                Cell cell8 = new Cell();
+                cell8.add(String.valueOf(customerTickets.getKidsTickets()));
+                table.addCell(cell8);
+            }
+
 
 
             // Populating row 5 and adding it to the table
@@ -191,13 +220,14 @@ public class QRCodeServices {
             // Creating the cell10
             Cell cell10 = new Cell();
 
-            String url = "https://technologykings.co.za/" +
-                    String.valueOf(customerTickets.getUserId().getUserId()) + "/" + customerTickets.getReferenceNumber() +
-                    "/" + qrCodeImage.getName();
-            System.out.println(url);
+//            String url = "https://technologykings.co.za/" +
+//                    String.valueOf(customerTickets.getUserId().getUserId()) + "/" + customerTickets.getReferenceNumber() +
+//                    "/" + qrCodeImage.getName();
+//            System.out.println(url);
 
             // Creating an ImageData object
-            ImageData data = ImageDataFactory.create(url);
+//            ImageData data = ImageDataFactory.create(url);
+            ImageData data = ImageDataFactory.create(readFileToByteArray(qrCodeImage));
 
             // Creating the image
             Image img = new Image(data);
@@ -221,5 +251,20 @@ public class QRCodeServices {
         return barCodePdf;
     }
 
+    private  byte[] readFileToByteArray(File file){
+        FileInputStream fis = null;
+        // Creating a byte array using the length of the file
+        // file.length returns long which is cast to int
+        byte[] bArray = new byte[(int) file.length()];
+        try{
+            fis = new FileInputStream(file);
+            fis.read(bArray);
+            fis.close();
+
+        }catch(IOException ioExp){
+            ioExp.printStackTrace();
+        }
+        return bArray;
+    }
 
 }

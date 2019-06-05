@@ -3,10 +3,12 @@ package co.za.quickbuyticketcomponent.services;
 import co.za.quickbuyticketcomponent.modals.CustomerTickets;
 import co.za.quickbuyticketcomponent.modals.CustomerTransactionDetails;
 import co.za.quickbuyticketcomponent.modals.UserProfile;
+import co.za.quickbuyticketcomponent.modals.VerifiedTickets;
 import co.za.quickbuyticketcomponent.payload.*;
 import co.za.quickbuyticketcomponent.repositories.CustomerTicketsRepository;
 import co.za.quickbuyticketcomponent.repositories.TransactionDetailsRepository;
 import co.za.quickbuyticketcomponent.repositories.UserProfileRepository;
+import co.za.quickbuyticketcomponent.repositories.VerifiedTicketsRepository;
 import co.za.quickbuyticketcomponent.utils.FTPConfigProperties;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.itextpdf.text.DocumentException;
@@ -35,6 +37,9 @@ public class CustomerTicketsService {
     CustomerTicketsRepository customerTicketsRepository;
 
     @Autowired
+    VerifiedTicketsRepository verifiedTicketsRepository;
+
+    @Autowired
     UserProfileRepository userProfileRepository;
 
     @Autowired
@@ -61,6 +66,7 @@ public class CustomerTicketsService {
         customerTickets.setCricketTickets(customerTicketsTO.getCricketTickets());
         customerTickets.setCulturalTickets(customerTicketsTO.getCulturalTickets());
         customerTickets.setKidsTickets(customerTicketsTO.getKidsTickets());
+        customerTickets.setGrasstickets(customerTicketsTO.getGrassTickets());
         customerTickets.setUserId(userProfile);
         customerTickets.setPaymentReceived(0);
         customerTickets.setEmailSent(0);
@@ -90,7 +96,8 @@ public class CustomerTicketsService {
         BigDecimal comboTickets = new BigDecimal(customerTickets.getComboTickets() * 500);
         BigDecimal cricket = new BigDecimal(customerTickets.getCricketTickets() * 200);
         BigDecimal cultural = new BigDecimal(customerTickets.getCulturalTickets() * 200);
-        return comboTickets.add(cricket).add(cultural);
+        BigDecimal grass = new BigDecimal(customerTickets.getGrasstickets() * 100);
+        return comboTickets.add(cricket).add(cultural).add(grass);
     }
 
 
@@ -116,11 +123,11 @@ public class CustomerTicketsService {
                                 try {
                                     HashMap<String, Object> attachments = qrCodeServices.createQrCodeServices(customerTickets);
                                     emailServices.sendEmailToClient(customerTickets, attachments);
-                                    bulkSmsService.sendReferenceNotification(notificationSMSRequest(customerTickets.getUserId().getMobile(),customerTickets.getReferenceNumber()));
+                                    bulkSmsService.sendReferenceNotification(notificationSMSRequest(customerTickets.getUserId().getMobile(), customerTickets.getReferenceNumber()));
                                     logger.info("pdfname {}", attachments.get("pdfname").toString());
                                     logger.info("qrcode {}", attachments.get("qrcodename").toString());
-                                    completePaymentResponseTO.setPdfReference("https://technologykings.co.za/" + customerTickets.getUserId().getUserId() + "/" + customerTickets.getReferenceNumber() + "/" +attachments.get("pdfname").toString());
-                                    completePaymentResponseTO.setQrCodeRef("https://technologykings.co.za/" + customerTickets.getUserId().getUserId() + "/" + customerTickets.getReferenceNumber() + "/" +attachments.get("qrcodename").toString());
+                                    completePaymentResponseTO.setPdfReference("https://technologykings.co.za/" + customerTickets.getUserId().getUserId() + "/" + customerTickets.getReferenceNumber() + "/" + attachments.get("pdfname").toString());
+                                    completePaymentResponseTO.setQrCodeRef("https://technologykings.co.za/" + customerTickets.getUserId().getUserId() + "/" + customerTickets.getReferenceNumber() + "/" + attachments.get("qrcodename").toString());
 
                                     return completePaymentResponseTO;
                                 } catch (IOException e) {
@@ -140,21 +147,21 @@ public class CustomerTicketsService {
         return null;
     }
 
-    private BulkSMSRequest notificationSMSRequest(String cellphone,String reference){
+    private BulkSMSRequest notificationSMSRequest(String cellphone, String reference) {
 
 
         BulkSMSRequest bulkSMSRequest = new BulkSMSRequest();
-        SmsFromAddress smsFromAddress =new SmsFromAddress();
+        SmsFromAddress smsFromAddress = new SmsFromAddress();
         smsFromAddress.setAddress("1111111");
         smsFromAddress.setType("INTERNATIONAL");
         bulkSMSRequest.setFrom(smsFromAddress);
-        System.out.println("formatCellNumber(cellphone) :"+formatCellNumber(cellphone));
-        System.out.println("formatCellNumber(cellphone) :"+"QuickBuyTicket :  Your reference number "+ reference);
-        List<ToAddressDetail>  toAddress =new ArrayList<>();
-        toAddress.add(new ToAddressDetail("INTERNATIONAL",formatCellNumber(cellphone),null));
+        System.out.println("formatCellNumber(cellphone) :" + formatCellNumber(cellphone));
+        System.out.println("formatCellNumber(cellphone) :" + "QuickBuyTicket :  Your reference number " + reference);
+        List<ToAddressDetail> toAddress = new ArrayList<>();
+        toAddress.add(new ToAddressDetail("INTERNATIONAL", formatCellNumber(cellphone), null));
         bulkSMSRequest.setTo(toAddress);
         bulkSMSRequest.setBody("Thanks for purchasing the tickets from QuickBuyTicket " +
-                " Your reference number "+ reference);
+                " Your reference number " + reference);
         bulkSMSRequest.setRoutingGroup("ECONOMY");
         bulkSMSRequest.setEncoding("TEXT");
         bulkSMSRequest.setLongMessageMaxParts(99);
@@ -164,12 +171,27 @@ public class CustomerTicketsService {
         bulkSMSRequest.setDeliveryReports("ALL");
 
 
-
         return bulkSMSRequest;
     }
 
-    private String formatCellNumber(String cellphone){
+    private String formatCellNumber(String cellphone) {
         return "+27".concat(cellphone.substring(1));
+    }
+
+
+    public String checkReferenceNumber(String referenceNumber) {
+        if(customerTicketsRepository.findByReferenceNumber(referenceNumber) != null){
+
+            if (verifiedTicketsRepository.findByReferenceNumber(referenceNumber) == null) {
+                verifiedTicketsRepository.save(new VerifiedTickets(referenceNumber, new Date()));
+                return "1";
+            }
+            return "2";
+        }
+        else {
+            return "0";
+        }
+
     }
 
 }

@@ -73,6 +73,7 @@ public class EmailServices {
         data.put("cricket", customerTickets.getCricketTickets());
         data.put("cultural", customerTickets.getCulturalTickets());
         data.put("kids", customerTickets.getKidsTickets());
+        data.put("grass", customerTickets.getGrasstickets());
         data.put("referenceNumber", customerTickets.getReferenceNumber());
 
 

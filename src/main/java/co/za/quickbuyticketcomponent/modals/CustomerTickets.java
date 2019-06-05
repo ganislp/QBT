@@ -17,6 +17,7 @@ public class CustomerTickets implements java.io.Serializable {
     private int ComboTickets;
     private int CricketTickets;
     private int CulturalTickets;
+    private int grasstickets;
     private int KidsTickets;
     private int PaymentReceived;
     private int EmailSent;
@@ -79,6 +80,15 @@ public class CustomerTickets implements java.io.Serializable {
 
     public void setCulturalTickets(int culturalTickets) {
         CulturalTickets = culturalTickets;
+    }
+
+    @Column(name = "grasstickets")
+    public int getGrasstickets() {
+        return grasstickets;
+    }
+
+    public void setGrasstickets(int grasstickets) {
+        this.grasstickets = grasstickets;
     }
 
     @Column(name = "PaymentReceived")

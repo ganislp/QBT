@@ -11,5 +11,6 @@ public interface UserProfileRepository extends JpaRepository<UserProfile, Long> 
     UserProfile findAllByEmailAndAccountType(String email, AccountType accountType);
     UserProfile findByEmailAndPassword(String email,String password);
     UserProfile findByEmail(String email);
+    UserProfile findByUserId(Integer userId);
 
 }

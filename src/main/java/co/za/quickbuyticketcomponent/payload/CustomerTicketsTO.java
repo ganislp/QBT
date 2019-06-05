@@ -28,6 +28,9 @@ public class CustomerTicketsTO extends CustomerTransactionDetailsTO implements j
     private int CulturalTickets;
     @JsonProperty("KidsTickets")
     private int KidsTickets;
+
+    @JsonProperty("GrassTickets")
+    private int GrassTickets;
     @JsonProperty("PaymentReceived")
     private int PaymentReceived;
     @JsonProperty("EmailSent")
@@ -177,6 +180,14 @@ public class CustomerTicketsTO extends CustomerTransactionDetailsTO implements j
         KidsTickets = kidsTickets;
     }
 
+    public int getGrassTickets() {
+        return GrassTickets;
+    }
+
+    public void setGrassTickets(int grassTickets) {
+        GrassTickets = grassTickets;
+    }
+
     @Override
     public String toString() {
         return "CustomerTicketsTO{" +
@@ -188,6 +199,7 @@ public class CustomerTicketsTO extends CustomerTransactionDetailsTO implements j
                 ", CricketTickets=" + CricketTickets +
                 ", CulturalTickets=" + CulturalTickets +
                 ", KidsTickets=" + KidsTickets +
+                ", GrassTickets=" + GrassTickets +
                 ", PaymentReceived=" + PaymentReceived +
                 ", EmailSent=" + EmailSent +
                 ", ReferenceNumber='" + ReferenceNumber + '\'' +
@@ -195,6 +207,6 @@ public class CustomerTicketsTO extends CustomerTransactionDetailsTO implements j
                 ", pdfFilename='" + pdfFilename + '\'' +
                 ", CreatedDate=" + CreatedDate +
                 ", UpdatedDate=" + UpdatedDate +
-                "} " + super.toString();
+                '}';
     }
 }
